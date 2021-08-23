@@ -10,7 +10,7 @@
     "server-ts": "nodemon --exec ts-node src/index.ts",
     "watch": "tsc -w"
   },
-  "repository": "https://github.com/zendy199x/FullStack-Typescript-GraphQL-Apollo-ReactJS-NextJS-Project.git",
+  "repository": "https://github.com/zendy199x/FullStack-Reddit-Project.git",
   "author": "Zendy",
   "license": "MIT",
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { User } from './entities/User';
 require("dotenv").config();
 import "reflect-metadata";
 import express from "express";
@@ -11,6 +12,7 @@ const main = async () => {
     password: process.env.DB_PASSWORD_DEV,
     logging: true,
     synchronize: true,
+    entities: [User]
   });
 
   const app = express();

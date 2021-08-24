@@ -4,11 +4,12 @@ import express from "express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { Post } from "./entities/Post";
-import { User } from "./entities/User";
 import { ApolloServer } from "apollo-server-express";
 import { HelloResolver } from "./resolvers/hello";
+import { UserResolver } from "./resolvers/user";
 import { Context } from "apollo-server-core/dist/types";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { User } from "./entities/User";
 
 const main = async () => {
   await createConnection({
@@ -24,7 +25,7 @@ const main = async () => {
   const app = express();
 
   const apolloServer = new ApolloServer({
-    schema: await buildSchema({ resolvers: [HelloResolver], validate: false }),
+    schema: await buildSchema({ resolvers: [HelloResolver, UserResolver], validate: false }),
     context: ({ req, res }): Context => ({ req, res }),
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
   });

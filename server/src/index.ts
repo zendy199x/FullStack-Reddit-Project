@@ -1,9 +1,13 @@
 require("dotenv").config();
 import "reflect-metadata";
 import express from "express";
+import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import { User } from "./entities/User";
 import { Post } from "./entities/Post";
+import { User } from "./entities/User";
+import { ApolloServer } from "apollo-server-express";
+import { HelloResolver } from "./resolvers/hello";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 const main = async () => {
   await createConnection({
@@ -18,8 +22,20 @@ const main = async () => {
 
   const app = express();
 
-  app.listen(process.env.PORT, () =>
-    console.log(`Server started on port ${process.env.PORT}`)
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({ resolvers: [HelloResolver], validate: false }),
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
+  });
+
+  await apolloServer.start();
+
+  apolloServer.applyMiddleware({ app, cors: false });
+
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () =>
+    console.log(
+      `Server started on port ${PORT}. GraphQL server started on localhost ${PORT}${apolloServer.graphqlPath}`
+    )
   );
 };
 

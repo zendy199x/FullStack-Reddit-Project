@@ -7,6 +7,7 @@ import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { ApolloServer } from "apollo-server-express";
 import { HelloResolver } from "./resolvers/hello";
+import { Context } from "apollo-server-core/dist/types";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 
 const main = async () => {
@@ -24,6 +25,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({ resolvers: [HelloResolver], validate: false }),
+    context: ({ req, res }): Context => ({ req, res }),
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
   });
 

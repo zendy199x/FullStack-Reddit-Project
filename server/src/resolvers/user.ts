@@ -1,15 +1,14 @@
 import argon2 from "argon2";
 import { Arg, Mutation, Resolver } from "type-graphql";
 import { User } from "../entities/User";
+import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "./../types/UserMutationResponse";
 
 @Resolver()
 export class UserResolver {
   @Mutation((_returns) => UserMutationResponse, { nullable: true })
   async register(
-    @Arg("email") email: string,
-    @Arg("username") username: string,
-    @Arg("password") password: string
+    @Arg("registerInput") { username, password, email }: RegisterInput
   ): Promise<UserMutationResponse> {
     try {
       const existingUser = await User.findOne({
@@ -23,7 +22,9 @@ export class UserResolver {
           errors: [
             {
               field: existingUser.username === username ? "username" : "email",
-              message: `${existingUser.username === username ? "Username" : "Email"} already taken`,
+              message: `${
+                existingUser.username === username ? "Username" : "Email"
+              } already taken`,
             },
           ],
         };
@@ -35,13 +36,13 @@ export class UserResolver {
         password: hashPassword,
         email,
       });
-      
+
       return {
         code: 200,
         success: true,
-        message: 'User registration successful',
-        user: await User.save(newUser)
-      }
+        message: "User registration successful",
+        user: await User.save(newUser),
+      };
     } catch (error) {
       console.log(error);
       return {

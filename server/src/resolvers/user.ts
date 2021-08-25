@@ -3,14 +3,25 @@ import { Arg, Mutation, Resolver } from "type-graphql";
 import { User } from "../entities/User";
 import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "./../types/UserMutationResponse";
+import { validateRegisterInput } from "./../utils/validateRegisterInput";
 
 @Resolver()
 export class UserResolver {
   @Mutation((_returns) => UserMutationResponse, { nullable: true })
   async register(
-    @Arg("registerInput") { username, password, email }: RegisterInput
+    @Arg("registerInput") registerInput: RegisterInput
   ): Promise<UserMutationResponse> {
+    const validateRegisterInputErrors = validateRegisterInput(registerInput);
+    if (validateRegisterInputErrors !== null)
+      return {
+        code: 400,
+        success: false,
+        ...validateRegisterInputErrors,
+      };
+
     try {
+      const { username, email, password } = registerInput;
+
       const existingUser = await User.findOne({
         where: [{ username }, { email }],
       });
@@ -48,13 +59,7 @@ export class UserResolver {
       return {
         code: 500,
         success: false,
-        message: "Duplicated username or email",
-        errors: [
-          {
-            field: `Internal server error ${error.message}`,
-            message: "Username or email already taken",
-          },
-        ],
+        message: `Internal server error ${error.message}`,
       };
     }
   }

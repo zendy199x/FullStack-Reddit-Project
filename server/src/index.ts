@@ -1,4 +1,3 @@
-require("dotenv").config();
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
 import MongoStore from "connect-mongo";
@@ -12,8 +11,10 @@ import { COOKIE_NAME, __prod__ } from "./constants";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { HelloResolver } from "./resolvers/hello";
+import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import { Context } from "./types/Context";
+require("dotenv").config();
 
 const main = async () => {
   await createConnection({
@@ -25,7 +26,6 @@ const main = async () => {
     synchronize: true,
     entities: [User, Post],
   });
-
   const app = express();
 
   // Session/Cookie store
@@ -58,7 +58,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, UserResolver],
+      resolvers: [HelloResolver, UserResolver, PostResolver],
       validate: false,
     }),
     context: ({ req, res }): Context => ({ req, res }),

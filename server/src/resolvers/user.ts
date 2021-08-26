@@ -10,10 +10,10 @@ import { validateRegisterInput } from "./../utils/validateRegisterInput";
 
 @Resolver()
 export class UserResolver {
-  @Mutation((_returns) => UserMutationResponse, { nullable: true })
+  @Mutation((_return) => UserMutationResponse, { nullable: true })
   async register(
     @Arg("registerInput") registerInput: RegisterInput,
-    @Ctx() {req}: Context
+    @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
     const validateRegisterInputErrors = validateRegisterInput(registerInput);
     if (validateRegisterInputErrors !== null)
@@ -45,17 +45,17 @@ export class UserResolver {
           ],
         };
 
-      const hashPassword = await argon2.hash(password);
+      const hashedPassword = await argon2.hash(password);
 
-      let newUser = User.create({
+      const newUser = User.create({
         username,
-        password: hashPassword,
+        password: hashedPassword,
         email,
       });
 
-      newUser = await User.save(newUser),
+      await newUser.save();
 
-      req.session.userId = newUser.id
+      req.session.userId = newUser.id;
 
       return {
         code: 200,
@@ -73,7 +73,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation((_returns) => UserMutationResponse)
+  @Mutation((_return) => UserMutationResponse)
   async login(
     @Arg("loginInput") { usernameOrEmail, password }: LoginInput,
     @Ctx() { req }: Context
@@ -130,13 +130,13 @@ export class UserResolver {
     }
   }
 
-  @Mutation((_returns) => Boolean)
+  @Mutation((_return) => Boolean)
   logout(@Ctx() { req, res }: Context): Promise<boolean> {
     return new Promise((resolve, _reject) => {
       res.clearCookie(COOKIE_NAME);
       req.session.destroy((error) => {
         if (error) {
-          console.log(`SESSION ERROR`, error);
+          console.log(`DESTROYING SESSION ERROR`, error);
           resolve(false);
         }
         resolve(true);

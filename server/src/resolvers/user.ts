@@ -1,6 +1,7 @@
 import argon2 from "argon2";
-import { Arg, Mutation, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { User } from "../entities/User";
+import { Context } from "../types/Context";
 import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
 import { UserMutationResponse } from "./../types/UserMutationResponse";
@@ -26,6 +27,7 @@ export class UserResolver {
       const existingUser = await User.findOne({
         where: [{ username }, { email }],
       });
+
       if (existingUser)
         return {
           code: 400,
@@ -67,7 +69,8 @@ export class UserResolver {
 
   @Mutation((_return) => UserMutationResponse)
   async login(
-    @Arg("loginInput") { usernameOrEmail, password }: LoginInput
+    @Arg("loginInput") { usernameOrEmail, password }: LoginInput,
+    @Ctx() { req }: Context
   ): Promise<UserMutationResponse> {
     try {
       const existingUser = await User.findOne(
@@ -101,6 +104,9 @@ export class UserResolver {
           message: "Wrong password",
           errors: [{ field: "password", message: "Wrong password" }],
         };
+
+      // Create session and return cookie
+      req.session.userId = existingUser.id;
 
       return {
         code: 200,

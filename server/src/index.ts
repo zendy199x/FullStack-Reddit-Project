@@ -1,6 +1,5 @@
 require("dotenv").config();
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { Context } from "apollo-server-core/dist/types";
 import { ApolloServer } from "apollo-server-express";
 import MongoStore from "connect-mongo";
 import express from "express";
@@ -14,6 +13,7 @@ import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { HelloResolver } from "./resolvers/hello";
 import { UserResolver } from "./resolvers/user";
+import { Context } from "./types/Context";
 
 const main = async () => {
   await createConnection({

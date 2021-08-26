@@ -4,14 +4,16 @@ import { User } from "../entities/User";
 import { Context } from "../types/Context";
 import { LoginInput } from "../types/LoginInput";
 import { RegisterInput } from "../types/RegisterInput";
+import { COOKIE_NAME } from "./../constants";
 import { UserMutationResponse } from "./../types/UserMutationResponse";
 import { validateRegisterInput } from "./../utils/validateRegisterInput";
 
 @Resolver()
 export class UserResolver {
-  @Mutation((_return) => UserMutationResponse, { nullable: true })
+  @Mutation((_returns) => UserMutationResponse, { nullable: true })
   async register(
-    @Arg("registerInput") registerInput: RegisterInput
+    @Arg("registerInput") registerInput: RegisterInput,
+    @Ctx() {req}: Context
   ): Promise<UserMutationResponse> {
     const validateRegisterInputErrors = validateRegisterInput(registerInput);
     if (validateRegisterInputErrors !== null)
@@ -45,17 +47,21 @@ export class UserResolver {
 
       const hashPassword = await argon2.hash(password);
 
-      const newUser = User.create({
+      let newUser = User.create({
         username,
         password: hashPassword,
         email,
       });
 
+      newUser = await User.save(newUser),
+
+      req.session.userId = newUser.id
+
       return {
         code: 200,
         success: true,
         message: "User registration successful",
-        user: await User.save(newUser),
+        user: newUser,
       };
     } catch (error) {
       console.log(error);
@@ -67,7 +73,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation((_return) => UserMutationResponse)
+  @Mutation((_returns) => UserMutationResponse)
   async login(
     @Arg("loginInput") { usernameOrEmail, password }: LoginInput,
     @Ctx() { req }: Context
@@ -122,5 +128,19 @@ export class UserResolver {
         message: `Internal server error ${error.message}`,
       };
     }
+  }
+
+  @Mutation((_returns) => Boolean)
+  logout(@Ctx() { req, res }: Context): Promise<boolean> {
+    return new Promise((resolve, _reject) => {
+      res.clearCookie(COOKIE_NAME);
+      req.session.destroy((error) => {
+        if (error) {
+          console.log(`SESSION ERROR`, error);
+          resolve(false);
+        }
+        resolve(true);
+      });
+    });
   }
 }

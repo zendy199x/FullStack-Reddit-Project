@@ -1,6 +1,6 @@
-import { FieldError } from "./FieldError";
-import { User } from "../entities/User";
 import { Field, ObjectType } from "type-graphql";
+import { User } from "../entities/User";
+import { FieldError } from "./FieldError";
 import { IMutationResponse } from "./MutationResponse";
 
 @ObjectType({ implements: IMutationResponse })

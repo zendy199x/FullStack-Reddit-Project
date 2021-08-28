@@ -178,9 +178,7 @@ export const FieldErrorFragmentDoc = gql`
     `;
 export const UserMutationResponseFragmentDoc = gql`
     fragment userMutationResponse on UserMutationResponse {
-  code
-  success
-  message
+  ...mutationStatuses
   user {
     ...userInfo
   }
@@ -188,7 +186,8 @@ export const UserMutationResponseFragmentDoc = gql`
     ...fieldError
   }
 }
-    ${UserInfoFragmentDoc}
+    ${MutationStatusesFragmentDoc}
+${UserInfoFragmentDoc}
 ${FieldErrorFragmentDoc}`;
 export const LoginDocument = gql`
     mutation Login($loginInput: LoginInput!) {

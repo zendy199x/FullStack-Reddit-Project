@@ -32,7 +32,7 @@ const Register = () => {
       setErrors(mapFieldErrors(response.data.register.errors));
     } else if (response.data?.register?.user) {
       // Register successfully
-      route.push('/');
+      route.push('/login');
     }
   };
 

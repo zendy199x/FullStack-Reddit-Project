@@ -1,14 +1,34 @@
 import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import React from 'react';
-import { useMeQuery } from '../generated/graphql';
+import {
+  MeDocument,
+  MeQuery,
+  useLogoutMutation,
+  useMeQuery,
+} from '../generated/graphql';
 
 const Navbar = () => {
-  const { data, loading } = useMeQuery();
+  const { data, loading: useMeQueryLoading } = useMeQuery();
+  const [logoutUser, { loading: useLogoutMutationLoading }] =
+    useLogoutMutation();
+
+  const handleLogoutUser = async () => {
+    await logoutUser({
+      update(cache, { data }) {
+        if (data?.logout) {
+          cache.writeQuery<MeQuery>({
+            query: MeDocument,
+            data: { me: null },
+          });
+        }
+      },
+    });
+  };
 
   let body;
 
-  if (loading) {
+  if (useMeQueryLoading) {
     body = null;
   } else if (!data?.me) {
     body = (
@@ -23,7 +43,11 @@ const Navbar = () => {
       </>
     );
   } else {
-    body = <Button>Logout</Button>;
+    body = (
+      <Button onClick={handleLogoutUser} isLoading={useLogoutMutationLoading}>
+        Logout
+      </Button>
+    );
   }
 
   return (

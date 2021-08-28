@@ -7,7 +7,7 @@ import Wrapper from '../components/Wrapper';
 import { RegisterInput, useRegisterMutation } from '../generated/graphql';
 import { mapFieldErrors } from '../helpers/mapFieldError';
 
-const RegisterAccount = () => {
+const Register = () => {
   const route = useRouter();
 
   const initialValues: RegisterInput = {
@@ -35,6 +35,9 @@ const RegisterAccount = () => {
       route.push('/');
     }
   };
+
+  console.log(`register data`, data);
+  console.log(`register error`, error);
 
   return (
     <Wrapper>
@@ -80,4 +83,4 @@ const RegisterAccount = () => {
   );
 };
 
-export default RegisterAccount;
+export default Register;

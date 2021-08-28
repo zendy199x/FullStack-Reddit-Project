@@ -1,6 +1,7 @@
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { ApolloServer } from "apollo-server-express";
 import MongoStore from "connect-mongo";
+import cors from "cors";
 import express from "express";
 import session from "express-session";
 import mongoose from "mongoose";
@@ -27,6 +28,13 @@ const main = async () => {
     entities: [User, Post],
   });
   const app = express();
+
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true
+    })
+  );
 
   // Session/Cookie store
   const mongoUrl = `mongodb+srv://${process.env.SESSION_DB_USERNAME_DEV_PROD}:${process.env.SESSION_DB_PASSWORD_DEV_PROD}@reddit.msu4m.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;

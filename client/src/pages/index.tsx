@@ -1,5 +1,5 @@
-import RegisterAccount from './register';
+import Register from './register';
 
-const Index = () => <RegisterAccount />;
+const Index = () => <Register />;
 
 export default Index;

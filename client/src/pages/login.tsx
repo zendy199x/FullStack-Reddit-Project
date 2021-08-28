@@ -4,62 +4,54 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import InputField from '../components/InputField';
 import Wrapper from '../components/Wrapper';
-import { RegisterInput, useRegisterMutation } from '../generated/graphql';
+import { LoginInput, useLoginMutation } from '../generated/graphql';
 import { mapFieldErrors } from '../helpers/mapFieldError';
 
-const Register = () => {
+const Login = () => {
   const route = useRouter();
 
-  const initialValues: RegisterInput = {
-    username: '',
-    email: '',
+  const initialValues: LoginInput = {
+    usernameOrEmail: '',
     password: '',
   };
 
-  const [registerUser, { data, loading: _registerUserLoading, error }] = useRegisterMutation();
+  const [loginUser, { data, loading: _loginUserLoading, error }] =
+    useLoginMutation();
 
-  const onRegisterSubmit = async (
-    values: RegisterInput,
-    { setErrors }: FormikHelpers<RegisterInput>
+  const onLoginSubmit = async (
+    values: LoginInput,
+    { setErrors }: FormikHelpers<LoginInput>
   ) => {
-    const response = await registerUser({
+    const response = await loginUser({
       variables: {
-        registerInput: values,
+        loginInput: values,
       },
     });
 
-    if (response.data?.register?.errors) {
-      setErrors(mapFieldErrors(response.data.register.errors));
-    } else if (response.data?.register?.user) {
+    if (response.data?.login?.errors) {
+      setErrors(mapFieldErrors(response.data.login.errors));
+    } else if (response.data?.login?.user) {
       // Register successfully
       route.push('/');
     }
   };
 
-  console.log(`Register data`, JSON.stringify(data));
-  console.log(`Register error`, error);
+  console.log(`Login data`, JSON.stringify(data));
+  console.log(`Login error`, error);
 
   return (
     <Wrapper>
-      {error && <p>Failed to register. Internal server error.</p>}
-      <Formik initialValues={initialValues} onSubmit={onRegisterSubmit}>
+      {error && <p>Failed to login. Internal server error.</p>}
+      <Formik initialValues={initialValues} onSubmit={onLoginSubmit}>
         {({ isSubmitting }) => (
           <Form>
             <FormControl>
               <InputField
-                name="username"
-                label="Username"
-                placeholder="Username"
+                name="usernameOrEmail"
+                label="Username or Email"
+                placeholder="Username or Email"
                 type="text"
               />
-              <Box>
-                <InputField
-                  name="email"
-                  label="Email"
-                  placeholder="Email"
-                  type="text"
-                />
-              </Box>
               <Box>
                 <InputField
                   name="password"
@@ -84,4 +76,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

@@ -1,3 +1,5 @@
-const Index = () => <h1>NextJS with Charka UI Typescript</h1>;
+import Register from './register';
+
+const Index = () => <Register />;
 
 export default Index;

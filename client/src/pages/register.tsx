@@ -1,16 +1,44 @@
 import { Box, Button, FormControl } from '@chakra-ui/react';
-import { Form, Formik } from 'formik';
+import { Form, Formik, FormikHelpers } from 'formik';
+import { useRouter } from 'next/router';
 import React from 'react';
 import InputField from '../components/InputField';
 import Wrapper from '../components/Wrapper';
+import { RegisterInput, useRegisterMutation } from '../generated/graphql';
+import { mapFieldErrors } from '../helpers/mapFieldError';
 
-const Register = () => {
+const RegisterAccount = () => {
+  const route = useRouter();
+
+  const initialValues: RegisterInput = {
+    username: '',
+    email: '',
+    password: '',
+  };
+
+  const [registerUser, { data, error }] = useRegisterMutation();
+
+  const onRegisterSubmit = async (
+    values: RegisterInput,
+    { setErrors }: FormikHelpers<RegisterInput>
+  ) => {
+    const response = await registerUser({
+      variables: {
+        registerInput: values,
+      },
+    });
+
+    if (response.data?.register?.errors) {
+      setErrors(mapFieldErrors(response.data.register.errors));
+    } else if (response.data?.register?.user) {
+      // Register successfully
+      route.push('/');
+    }
+  };
+
   return (
     <Wrapper>
-      <Formik
-        initialValues={{ username: '', password: '' }}
-        onSubmit={(values) => console.log(values)}
-      >
+      <Formik initialValues={initialValues} onSubmit={onRegisterSubmit}>
         {({ isSubmitting }) => (
           <Form>
             <FormControl>
@@ -20,6 +48,14 @@ const Register = () => {
                 placeholder="Username"
                 type="text"
               />
+              <Box>
+                <InputField
+                  name="email"
+                  label="Email"
+                  placeholder="Email"
+                  type="text"
+                />
+              </Box>
               <Box>
                 <InputField
                   name="password"
@@ -44,4 +80,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterAccount;

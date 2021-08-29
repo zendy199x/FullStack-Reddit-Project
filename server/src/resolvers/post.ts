@@ -43,7 +43,7 @@ export class PostResolver {
   }
 
   @Query((_return) => [Post], { nullable: true })
-  async ports(): Promise<Post[] | null> {
+  async posts(): Promise<Post[] | null> {
     try {
       return await Post.find();
     } catch (error) {

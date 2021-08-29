@@ -14,6 +14,7 @@ import { User } from "./entities/User";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import { Context } from "./types/Context";
+import { sendEmail } from "./utils/sendEmail";
 require("dotenv").config();
 
 const main = async () => {
@@ -26,12 +27,15 @@ const main = async () => {
     synchronize: true,
     entities: [User, Post],
   });
+
+  await sendEmail("zendy199x@gmail.com", '<b>Hello world</b>')
+
   const app = express();
 
   app.use(
     cors({
       origin: "http://localhost:3000",
-      credentials: true
+      credentials: true,
     })
   );
 

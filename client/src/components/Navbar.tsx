@@ -8,9 +8,9 @@ import {
   useMeQuery,
 } from '../generated/graphql';
 
-const Navbar = () => {
+export const Navbar = () => {
   const toast = useToast();
-  
+
   const { data, loading: useMeQueryLoading } = useMeQuery();
   const [logoutUser, { loading: useLogoutMutationLoading }] =
     useLogoutMutation();
@@ -33,7 +33,7 @@ const Navbar = () => {
       status: 'success',
       duration: 3000,
       isClosable: true,
-    })
+    });
   };
 
   let body;
@@ -76,5 +76,3 @@ const Navbar = () => {
     </Box>
   );
 };
-
-export default Navbar;

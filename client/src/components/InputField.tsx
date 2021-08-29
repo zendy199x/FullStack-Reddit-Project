@@ -14,7 +14,7 @@ interface InputFieldProps {
   type: string;
 }
 
-const InputField = (props: InputFieldProps) => {
+export const InputField = (props: InputFieldProps) => {
   const [field, { error }] = useField(props);
   return (
     <FormControl isInvalid={!!error}>
@@ -24,5 +24,3 @@ const InputField = (props: InputFieldProps) => {
     </FormControl>
   );
 };
-
-export default InputField;

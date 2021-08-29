@@ -14,7 +14,7 @@ import { User } from "./entities/User";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import { Context } from "./types/Context";
-import { sendEmail } from "./utils/sendEmail";
+// import { sendEmail } from "./utils/sendEmail";
 require("dotenv").config();
 
 const main = async () => {
@@ -28,7 +28,7 @@ const main = async () => {
     entities: [User, Post],
   });
 
-  await sendEmail("zendy199x@gmail.com", '<b>Hello world</b>')
+  // await sendEmail("zendy199x@gmail.com", '<b>Hello world</b>')
 
   const app = express();
 

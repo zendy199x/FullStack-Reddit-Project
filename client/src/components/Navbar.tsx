@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Link, useToast } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import React from 'react';
 import {
@@ -9,6 +9,8 @@ import {
 } from '../generated/graphql';
 
 const Navbar = () => {
+  const toast = useToast();
+  
   const { data, loading: useMeQueryLoading } = useMeQuery();
   const [logoutUser, { loading: useLogoutMutationLoading }] =
     useLogoutMutation();
@@ -24,6 +26,14 @@ const Navbar = () => {
         }
       },
     });
+
+    toast({
+      title: 'Logout successfully !',
+      description: null,
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    })
   };
 
   let body;

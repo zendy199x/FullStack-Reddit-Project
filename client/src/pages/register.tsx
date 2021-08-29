@@ -1,4 +1,4 @@
-import { Box, Button, FormControl } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, Spinner, useToast } from '@chakra-ui/react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -11,9 +11,14 @@ import {
   useRegisterMutation,
 } from '../generated/graphql';
 import { mapFieldErrors } from '../helpers/mapFieldError';
+import { useCheckAuth } from '../utils/useCheckAuth';
 
 const Register = () => {
-  const route = useRouter();
+  const router = useRouter();
+
+  const toast = useToast();
+
+  const { data: authData, loading: authLoading } = useCheckAuth();
 
   const initialValues: RegisterInput = {
     username: '',
@@ -46,7 +51,15 @@ const Register = () => {
       setErrors(mapFieldErrors(response.data.register.errors));
     } else if (response.data?.register?.user) {
       // Register successfully
-      route.push('/');
+      toast({
+        title: 'Register successfully !',
+        description: `Welcome to ${response.data?.register?.user.username}`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+
+      router.push('/');
     }
   };
 
@@ -54,47 +67,56 @@ const Register = () => {
   console.log(`Register error`, error);
 
   return (
-    <Wrapper>
-      {error && <p>Failed to register. Internal server error.</p>}
-      <Formik initialValues={initialValues} onSubmit={onRegisterSubmit}>
-        {({ isSubmitting }) => (
-          <Form>
-            <FormControl>
-              <InputField
-                name="username"
-                label="Username"
-                placeholder="Username"
-                type="text"
-              />
-              <Box>
-                <InputField
-                  name="email"
-                  label="Email"
-                  placeholder="Email"
-                  type="text"
-                />
-              </Box>
-              <Box>
-                <InputField
-                  name="password"
-                  label="Password"
-                  placeholder="Password"
-                  type="password"
-                />
-              </Box>
-              <Button
-                type="submit"
-                colorScheme="teal"
-                mt={4}
-                isLoading={isSubmitting}
-              >
-                Register
-              </Button>
-            </FormControl>
-          </Form>
-        )}
-      </Formik>
-    </Wrapper>
+    <>
+      {authLoading ||
+        (!authLoading && authData?.me ? (
+          <Flex justifyContent="center" alignItems="center" minH="100vh">
+            <Spinner />
+          </Flex>
+        ) : (
+          <Wrapper>
+            {error && <p>Failed to register. Internal server error.</p>}
+            <Formik initialValues={initialValues} onSubmit={onRegisterSubmit}>
+              {({ isSubmitting }) => (
+                <Form>
+                  <FormControl>
+                    <InputField
+                      name="username"
+                      label="Username"
+                      placeholder="Username"
+                      type="text"
+                    />
+                    <Box>
+                      <InputField
+                        name="email"
+                        label="Email"
+                        placeholder="Email"
+                        type="text"
+                      />
+                    </Box>
+                    <Box>
+                      <InputField
+                        name="password"
+                        label="Password"
+                        placeholder="Password"
+                        type="password"
+                      />
+                    </Box>
+                    <Button
+                      type="submit"
+                      colorScheme="teal"
+                      mt={4}
+                      isLoading={isSubmitting}
+                    >
+                      Register
+                    </Button>
+                  </FormControl>
+                </Form>
+              )}
+            </Formik>
+          </Wrapper>
+        ))}
+    </>
   );
 };
 

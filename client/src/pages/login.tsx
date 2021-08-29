@@ -1,4 +1,11 @@
-import { Box, Button, FormControl } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Spinner,
+  useToast,
+} from '@chakra-ui/react';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -11,9 +18,14 @@ import {
   useLoginMutation,
 } from '../generated/graphql';
 import { mapFieldErrors } from '../helpers/mapFieldError';
+import { useCheckAuth } from '../utils/useCheckAuth';
 
 const Login = () => {
-  const route = useRouter();
+  const router = useRouter();
+
+const toast = useToast();  
+
+  const { data: authData, loading: authLoading } = useCheckAuth();
 
   const initialValues: LoginInput = {
     usernameOrEmail: '',
@@ -52,7 +64,15 @@ const Login = () => {
       setErrors(mapFieldErrors(response.data.login.errors));
     } else if (response.data?.login?.user) {
       // Register successfully
-      route.push('/');
+      toast({
+        title: 'Login successfully !',
+        description: `Welcome to ${response.data?.login?.user.username}`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      })
+
+      router.push('/');
     }
   };
 
@@ -60,39 +80,48 @@ const Login = () => {
   console.log(`Login error`, error);
 
   return (
-    <Wrapper>
-      {error && <p>Failed to login. Internal server error.</p>}
-      <Formik initialValues={initialValues} onSubmit={onLoginSubmit}>
-        {({ isSubmitting }) => (
-          <Form>
-            <FormControl>
-              <InputField
-                name="usernameOrEmail"
-                label="Username or Email"
-                placeholder="Username or Email"
-                type="text"
-              />
-              <Box>
-                <InputField
-                  name="password"
-                  label="Password"
-                  placeholder="Password"
-                  type="password"
-                />
-              </Box>
-              <Button
-                type="submit"
-                colorScheme="teal"
-                mt={4}
-                isLoading={isSubmitting}
-              >
-                Register
-              </Button>
-            </FormControl>
-          </Form>
-        )}
-      </Formik>
-    </Wrapper>
+    <>
+      {authLoading ||
+        (!authLoading && authData?.me ? (
+          <Flex justifyContent="center" alignItems="center" minH="100vh">
+            <Spinner />
+          </Flex>
+        ) : (
+          <Wrapper>
+            {error && <p>Failed to login. Internal server error.</p>}
+            <Formik initialValues={initialValues} onSubmit={onLoginSubmit}>
+              {({ isSubmitting }) => (
+                <Form>
+                  <FormControl>
+                    <InputField
+                      name="usernameOrEmail"
+                      label="Username or Email"
+                      placeholder="Username or Email"
+                      type="text"
+                    />
+                    <Box>
+                      <InputField
+                        name="password"
+                        label="Password"
+                        placeholder="Password"
+                        type="password"
+                      />
+                    </Box>
+                    <Button
+                      type="submit"
+                      colorScheme="teal"
+                      mt={4}
+                      isLoading={isSubmitting}
+                    >
+                      Register
+                    </Button>
+                  </FormControl>
+                </Form>
+              )}
+            </Formik>
+          </Wrapper>
+        ))}
+    </>
   );
 };
 

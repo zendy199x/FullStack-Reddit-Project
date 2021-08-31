@@ -27,7 +27,7 @@ const ForgotPassword = () => {
           <Spinner />
         </Flex>
       ) : (
-        <Wrapper>
+        <Wrapper size="small">
           <Formik
             initialValues={initialValues}
             onSubmit={onForgotPasswordSubmit}

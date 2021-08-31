@@ -99,10 +99,13 @@ export type MutationChangePasswordArgs = {
 export type Post = {
   __typename?: 'Post';
   id: Scalars['ID'];
+  userId?: Maybe<Scalars['String']>;
+  user: User;
   title: Scalars['String'];
   text: Scalars['String'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
+  textSnippet: Scalars['String'];
 };
 
 export type PostMutationResponse = IMutationResponse & {
@@ -207,7 +210,7 @@ export type MeQuery = { __typename?: 'Query', me?: Maybe<{ __typename?: 'User', 
 export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts?: Maybe<Array<{ __typename?: 'Post', id: string, title: string, text: string, createdAt: any, updatedAt: any }>> };
+export type PostsQuery = { __typename?: 'Query', posts?: Maybe<Array<{ __typename?: 'Post', id: string, title: string, text: string, createdAt: any, updatedAt: any, textSnippet: string, user: { __typename?: 'User', username: string } }>> };
 
 export const MutationStatusesFragmentDoc = gql`
     fragment mutationStatuses on UserMutationResponse {
@@ -450,6 +453,10 @@ export const PostsDocument = gql`
     text
     createdAt
     updatedAt
+    textSnippet
+    user {
+      username
+    }
   }
 }
     `;

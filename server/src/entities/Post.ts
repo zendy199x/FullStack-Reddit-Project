@@ -21,7 +21,7 @@ export class Post extends BaseEntity {
   @Column({ nullable: true })
   userId!: string;
 
-  @Field(_type => User)
+  @Field((_type) => User)
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
 
@@ -34,10 +34,10 @@ export class Post extends BaseEntity {
   text!: string;
 
   @Field()
-  @CreateDateColumn()
+  @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;
 
   @Field()
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: "timestamptz" })
   updatedAt: Date;
 }

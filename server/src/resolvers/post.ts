@@ -14,6 +14,7 @@ import { CreatePostInput } from "../types/CreatePostInput";
 import { PostMutationResponse } from "../types/PostMutationResponse";
 import { UpdatePostInput } from "../types/UpdatePostInput";
 import { checkAuth } from "./../middleware/checkAuth";
+import { PaginatedPosts } from './../types/PaginatedPosts';
 
 @Resolver((_of) => Post)
 export class PostResolver {
@@ -55,10 +56,16 @@ export class PostResolver {
     }
   }
 
-  @Query((_return) => [Post], { nullable: true })
-  async posts(): Promise<Post[] | null> {
+  @Query((_return) => PaginatedPosts, { nullable: true })
+  async posts(): Promise<PaginatedPosts | null> {
     try {
-      return await Post.find();
+      const posts = await Post.find();
+      return {
+        totalCount: 5,
+        cursor: new Date(),
+        hasMore: true,
+        paginatedPosts: posts,
+      };
     } catch (error) {
       console.log(error);
       return null;

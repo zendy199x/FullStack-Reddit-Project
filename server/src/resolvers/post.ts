@@ -6,9 +6,10 @@ import {
   Query,
   Resolver,
   Root,
-  UseMiddleware,
+  UseMiddleware
 } from "type-graphql";
 import { Post } from "../entities/Post";
+import { User } from "../entities/User";
 import { CreatePostInput } from "../types/CreatePostInput";
 import { PostMutationResponse } from "../types/PostMutationResponse";
 import { UpdatePostInput } from "../types/UpdatePostInput";
@@ -19,6 +20,11 @@ export class PostResolver {
   @FieldResolver((_return) => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 50);
+  }
+
+  @FieldResolver((_return) => User)
+  async user(@Root() root: Post) {
+    return await User.findOne(root.userId);
   }
 
   @Mutation((_return) => PostMutationResponse)

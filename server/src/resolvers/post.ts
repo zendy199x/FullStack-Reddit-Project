@@ -2,19 +2,21 @@ import {
   Arg,
   FieldResolver,
   ID,
+  Int,
   Mutation,
   Query,
   Resolver,
   Root,
-  UseMiddleware
+  UseMiddleware,
 } from "type-graphql";
+import { LessThan } from "typeorm";
 import { Post } from "../entities/Post";
 import { User } from "../entities/User";
 import { CreatePostInput } from "../types/CreatePostInput";
 import { PostMutationResponse } from "../types/PostMutationResponse";
 import { UpdatePostInput } from "../types/UpdatePostInput";
 import { checkAuth } from "./../middleware/checkAuth";
-import { PaginatedPosts } from './../types/PaginatedPosts';
+import { PaginatedPosts } from "./../types/PaginatedPosts";
 
 @Resolver((_of) => Post)
 export class PostResolver {
@@ -57,13 +59,37 @@ export class PostResolver {
   }
 
   @Query((_return) => PaginatedPosts, { nullable: true })
-  async posts(): Promise<PaginatedPosts | null> {
+  async posts(
+    @Arg("limit", (_type) => Int) limit: number,
+    @Arg("cursor", { nullable: true }) cursor?: string
+  ): Promise<PaginatedPosts | null> {
     try {
-      const posts = await Post.find();
+      const totalPostCount = await Post.count();
+      const realLimit = Math.min(10, limit);
+
+      const findOptions: { [key: string]: any } = {
+        order: {
+          createdAt: "DESC",
+        },
+        take: realLimit,
+      };
+
+      let lastPost: Post[] = [];
+      if (cursor) {
+        findOptions.where = { createdAt: LessThan(cursor) };
+
+        lastPost = await Post.find({ order: { createdAt: "ASC" }, take: 1 });
+      }
+
+      const posts = await Post.find(findOptions);
+
       return {
-        totalCount: 5,
-        cursor: new Date(),
-        hasMore: true,
+        totalCount: totalPostCount,
+        cursor: posts[posts.length - 1].createdAt,
+        hasMore: cursor
+          ? posts[posts.length - 1].createdAt.toString() !==
+            lastPost[0].createdAt.toString()
+          : posts.length !== totalPostCount,
         paginatedPosts: posts,
       };
     } catch (error) {
